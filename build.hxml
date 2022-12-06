@@ -1,0 +1,4 @@
+--swf bin/as3tools.swc
+--define native-trace
+--main As3Tools
+--library air4haxe
