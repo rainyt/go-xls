@@ -36,7 +36,7 @@ func main() {
 	if sheetExist && *APPEND {
 		fmt.Println("append模式")
 		newSheet = oldSheet
-		offestY = newSheet.MaxRow
+		offestY = newSheet.MaxRow - 1
 		useAppend = true
 	} else {
 		newSheet2, createErr := file.AddSheet("page1")

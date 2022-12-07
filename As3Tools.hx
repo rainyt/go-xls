@@ -12,6 +12,7 @@ import flash.filesystem.FileStream;
 import flash.filesystem.File;
 
 class As3Tools {
+	#if exeembed
 	/**
 	 * EXE的数据
 	 */
@@ -21,6 +22,7 @@ class As3Tools {
 	 * MAC的数据
 	 */
 	private static var macBytes:String = FileMacro.bindFile("go-xls");
+	#end
 
 	static function main() {
 		jsonToXlsx([["1", "2", "3"], ["2", "3", "4"]], File.applicationDirectory.resolvePath("testfile.xlsx"), APPEND, () -> {
@@ -65,12 +67,16 @@ class As3Tools {
 		// 然后调用exe接口
 		var native:NativeProcess = new NativeProcess();
 		var nativeProcessStartupInfo:NativeProcessStartupInfo = new NativeProcessStartupInfo();
-		var command = "temprun_001";
+		var command = "go-xls";
 		if (Capabilities.os.indexOf("Win") != -1) {
+			#if exeembed
 			saveTemprun(exeBytes, command + ".exe");
+			#end
 			nativeProcessStartupInfo.executable = new File(File.applicationDirectory.resolvePath(command + ".exe").nativePath);
 		} else {
+			#if exeembed
 			saveTemprun(macBytes, command);
+			#end
 			// 赋能权限
 			nativeProcessStartupInfo.executable = new File(File.applicationDirectory.resolvePath(command).nativePath);
 		}
