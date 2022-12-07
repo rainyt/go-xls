@@ -15,6 +15,8 @@ var (
 
 func main() {
 	flag.Parse()
+	// 删除已存在的文件
+	os.Remove(*OUT_FILE)
 	f, e := os.OpenFile(*OUT_FILE, os.O_RDWR|os.O_CREATE, 0755)
 	if e != nil {
 		panic(e)
