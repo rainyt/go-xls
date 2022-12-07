@@ -23,7 +23,7 @@ class As3Tools {
 	private static var macBytes:String = FileMacro.bindFile("go-xls");
 
 	static function main() {
-		jsonToXlsx([["1", "2", "3"], ["2", "3", "4"]], "testfile.xlsx", () -> {
+		jsonToXlsx([["1", "2", "3"], ["2", "3", "4"]], File.applicationDirectory.resolvePath("testfile.xlsx"), APPEND, () -> {
 			trace("执行完成");
 		});
 	}
@@ -36,7 +36,7 @@ class As3Tools {
 	static function saveTemprun(data:String, saveFile:String):Void {
 		var bytes = Base64.decode(data);
 		var file = new File(File.applicationDirectory.resolvePath(saveFile).nativePath);
-		if(file.exists){
+		if (file.exists) {
 			return;
 		}
 		var strem:FileStream = new FileStream();
@@ -52,9 +52,10 @@ class As3Tools {
 	 * @param data 
 	 * @param saveFile 
 	 */
-	public static function jsonToXlsx(data:Dynamic, saveFile:String, cb:Void->Void):Void {
+	public static function jsonToXlsx(data:Dynamic, saveFile:File, type:WirteType, cb:Void->Void):Void {
 		var file = new File(File.applicationDirectory.resolvePath("temp.json").nativePath);
-		var _savefile = new File(File.applicationDirectory.resolvePath(saveFile).nativePath);
+		// var _savefile = new File(File.applicationDirectory.resolvePath(saveFile).nativePath);
+		var _savefile = new File(saveFile.nativePath);
 		var strem:FileStream = new FileStream();
 		trace("save temp.json file:", file.nativePath);
 		strem.open(file, WRITE);
@@ -64,19 +65,23 @@ class As3Tools {
 		// 然后调用exe接口
 		var native:NativeProcess = new NativeProcess();
 		var nativeProcessStartupInfo:NativeProcessStartupInfo = new NativeProcessStartupInfo();
+		var command = "temprun_001";
 		if (Capabilities.os.indexOf("Win") != -1) {
-			saveTemprun(exeBytes, "temprun.exe");
-			nativeProcessStartupInfo.executable = new File(File.applicationDirectory.resolvePath("temprun.exe").nativePath);
+			saveTemprun(exeBytes, command + ".exe");
+			nativeProcessStartupInfo.executable = new File(File.applicationDirectory.resolvePath(command + ".exe").nativePath);
 		} else {
-			saveTemprun(macBytes, "temprun");
+			saveTemprun(macBytes, command);
 			// 赋能权限
-			nativeProcessStartupInfo.executable = new File(File.applicationDirectory.resolvePath("temprun").nativePath);
+			nativeProcessStartupInfo.executable = new File(File.applicationDirectory.resolvePath(command).nativePath);
 		}
 		var args = new Vector<String>();
 		args.push("--json");
 		args.push(file.nativePath);
 		args.push("--out");
 		args.push(_savefile.nativePath);
+		if (type == APPEND) {
+			args.push("--append");
+		}
 		trace("执行参数：", args);
 		nativeProcessStartupInfo.arguments = args;
 		native.start(nativeProcessStartupInfo);
@@ -91,4 +96,12 @@ class As3Tools {
 			cb();
 		});
 	}
+}
+
+/**
+ * 写入方式
+ */
+enum WirteType {
+	APPEND; // 追加
+	WRITE; // 覆盖
 }
